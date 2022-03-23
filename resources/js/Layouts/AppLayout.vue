@@ -22,6 +22,12 @@
                                 <jet-nav-link :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </jet-nav-link>
+                                <jet-nav-link
+                                    v-if="$page.props.user.is_admin"
+                                    :href="route('dashboard')"
+                                    :active="route().current('dashboard')">
+                                    Admin
+                                </jet-nav-link>
                             </div>
                         </div>
 

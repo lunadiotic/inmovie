@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Laravel\Jetstream\Jetstream;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -37,7 +38,22 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         return array_merge(parent::share($request), [
-            //
+            'user' => function () use ($request) {
+                if (! $request->user()) {
+                    return;
+                }
+
+                if (Jetstream::hasTeamFeatures() && $request->user()) {
+                    $request->user()->currentTeam;
+                }
+
+                return array_merge($request->user()->toArray(), array_filter([
+                    'all_teams' => Jetstream::hasTeamFeatures() ? $request->user()->allTeams()->values() : null,
+                ]), [
+                    'two_factor_enabled' => ! is_null($request->user()->two_factor_secret),
+                    'is_admin' => $request->user()->hasRole('admin')
+                ]);
+            },
         ]);
     }
 }
